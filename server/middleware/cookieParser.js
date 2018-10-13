@@ -1,17 +1,25 @@
 var express = require('express');
-// var cookieParser = require('cookie-parser');
+
 
 var app = express();
-// app.use(cookieParser());
+
 
 
 
 const parseCookies = (req, res, next) => {
-  // if (req.cookies) {
-  //   return next();
-  // }
-  
+  const cookieStr = req.headers.cookie;
 
+  if (cookieStr) {
+    const cookieArr = cookieStr.split('; ');
+    const cookieObj = {};
+    cookieArr.forEach((x) => {
+      const keyValue = x.split('=');
+      cookieObj[keyValue[0]] = keyValue[1];
+    });
+    
+    req.cookies = cookieObj;
+  }
+  next();
 };
 
 module.exports = parseCookies;

@@ -4,6 +4,7 @@ const utils = require('./lib/hashUtils');
 const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
+const parseCookies = require('./middleware/cookieParser');
 const models = require('./models');
 
 const app = express();
@@ -106,11 +107,23 @@ app.post('/signup', (req, res, next) => {
 
 app.post('/login', (req, res, next) => {
   
-  return models.Users.get({username: req.body.username})
-    .then((data) => models.Users.compare(req.body.password, data.password, data.salt));
-    
+  return models.Users.getAll({username: req.body.username})
+    .then((data) => {
+      if (data.length === 0) {
+        throw new Error('user does not exist');
+      } else {
+        if (!models.Users.compare(req.body.password, data[0].password, data[0].salt)) {
+          throw new Error('wrong password');
+        }
+      }
+    })
+    .then(() => {
+      res.redirect('/');
+    })
+    .catch(err => {
+      res.redirect('/login');
+    });
         
-  res.sendStatus(200);
 });
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
