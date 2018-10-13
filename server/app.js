@@ -15,6 +15,9 @@ app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(Auth.createSession);
+app.use(parseCookies);
+
 // app.use(models.session({ //return some sort of unique id
 //   id: (req) => { //replace this with relevant info
 //     return id;
@@ -24,16 +27,19 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/', 
 (req, res) => {
+  console.log('AAAAAAAAAAAAAAAAAAAAA');
   res.render('index');
 });
 
 app.get('/create', 
 (req, res) => {
+  console.log('BBBBBBBBBBBBBBBBBBBB');
   res.render('index');
 });
 
 app.get('/links', 
 (req, res, next) => {
+  console.log('CCCCCCCCCCCCCCCCCCCCCCCCC');
   models.Links.getAll()
     .then(links => {
       res.status(200).send(links);
@@ -45,6 +51,7 @@ app.get('/links',
 
 app.post('/links', 
 (req, res, next) => {
+  console.log('DDDDDDDDDDDDDDDDDDDDDDD');
   var url = req.body.url;
   if (!models.Links.isValidUrl(url)) {
     // send back a 404 if link is not valid
@@ -83,7 +90,7 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 app.post('/signup', (req, res, next) => {
-
+  console.log('EEEEEEEEEEEEEEEEEEEEEEEE');
   return models.Users.getAll({username: req.body.username})
     .then((data) => {
       if (data.length > 0) {
@@ -106,7 +113,7 @@ app.post('/signup', (req, res, next) => {
 });
 
 app.post('/login', (req, res, next) => {
-  
+  console.log('FFFFFFFFFFFFFFFFFFFF');
   return models.Users.getAll({username: req.body.username})
     .then((data) => {
       if (data.length === 0) {
@@ -120,6 +127,8 @@ app.post('/login', (req, res, next) => {
     .then(() => {
       res.redirect('/');
     })
+    .then(() => {parseCookies(req, res, next); })
+    .then(() => {Auth(req, res, next); })
     .catch(err => {
       res.redirect('/login');
     });
@@ -132,7 +141,7 @@ app.post('/login', (req, res, next) => {
 /************************************************************/
 
 app.get('/:code', (req, res, next) => {
-
+  console.log('GGGGGGGGGGGGGGGGGGGGGGGG');
   return models.Links.get({ code: req.params.code })
     .tap(link => {
 
