@@ -13,6 +13,7 @@
     "start": "nodemon --ignore node_modules server",
     "start:es6": "nodemon --exec babel-node --ignore node_modules server/index.js",
     "test": "mocha --bail --reporter nyan test/ServerSpec.js; pkill -n node;",
+    "testx": "mocha test/ServerSpec.js; RES=$?; kill %1; exit $RES",
     "test:es6": "babel-node server/index.js & mocha --compilers js:babel-register --bail --reporter nyan test/ServerSpec.js; pkill -n node;",
     "lint": "eslint ./"
   },

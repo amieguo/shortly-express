@@ -14,7 +14,11 @@ app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
-
+// app.use(models.session({ //return some sort of unique id
+//   id: (req) => { //replace this with relevant info
+//     return id;
+//   }
+// }))
 
 
 app.get('/', 
@@ -77,9 +81,37 @@ app.post('/links',
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.post('/signup', (req, res, next) => {
 
+  return models.Users.getAll({username: req.body.username})
+    .then((data) => {
+      if (data.length > 0) {
+        throw new Error('user already exists');
+      } else {
+        // create
+        return models.Users.create({
+          username: req.body.username,
+          password: req.body.password
+        });
+      }
+    })
+    .then(() => {
+      res.redirect('/');
+    })
+    .catch(err => {
+      res.redirect('/signup');
+    });
 
+});
 
+app.post('/login', (req, res, next) => {
+  
+  return models.Users.get({username: req.body.username})
+    .then((data) => models.Users.compare(req.body.password, data.password, data.salt));
+    
+        
+  res.sendStatus(200);
+});
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
